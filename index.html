@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Med-Resugram | Professional Health Suite</title>
+ <title>Med Resurgam | Professional Health Suite</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root {
 --primary: #0a6e5e;
@@ -656,11 +657,232 @@ z-index: 200;
 .modal-card { background: var(--surface); border-radius: 20px; padding: 32px; max-width: 440px; width: 100%; }
 .modal-title { font-size: 1.3rem; margin-bottom: 20px; color: var(--primary); }
  
+/* ══════════════════════════════
+   HAMBURGER BUTTON
+══════════════════════════════ */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1.2rem;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.hamburger-btn:hover { background: var(--primary-soft); color: var(--primary); }
+
+/* Sidebar overlay backdrop */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 19;
+  backdrop-filter: blur(2px);
+}
+.sidebar-backdrop.open { display: block; }
+
+/* ══════════════════════════════
+   RESPONSIVE — TABLET (≤ 900px)
+══════════════════════════════ */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 200px; }
+  .main-content { padding: 20px 18px; }
+  .doctors-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .quotes-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .top-bar-title { font-size: 1.2rem; }
+  .chat-sidebar { width: 220px; }
+}
+
+/* ══════════════════════════════
+   RESPONSIVE — MOBILE (≤ 700px)
+══════════════════════════════ */
 @media (max-width: 700px) {
-.sidebar { transform: translateX(-100%); }
-.main-content { margin-left: 0; padding: 16px; }
-.role-cards { flex-direction: column; }
-.chat-sidebar { display: none; }
+  /* ── Landing ── */
+  .landing-title { font-size: 2rem; }
+  .landing-sub { font-size: 0.95rem; }
+  .landing-tagline { font-size: 0.85rem; }
+  .role-cards { flex-direction: column; align-items: stretch; gap: 14px; }
+  .role-card { padding: 24px 20px; min-width: unset; border-radius: 14px; }
+  .role-icon { font-size: 2.2rem; }
+  .landing-body { padding: 40px 16px; }
+  #google_translate_element { top: 12px !important; right: 12px !important; }
+
+  /* ── Auth ── */
+  .auth-card { padding: 28px 18px; border-radius: 16px; }
+  .landing-logo { width: 56px; height: 56px; font-size: 26px; border-radius: 16px; }
+
+  /* ── Sidebar drawer behaviour ── */
+  .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.18); }
+  .main-content { margin-left: 0 !important; padding: 16px 14px; }
+
+  /* ── Top bar ── */
+  .top-bar { flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .top-bar-title { font-size: 1.1rem; }
+  .countdown-pill { font-size: 0.75rem; padding: 6px 10px; }
+  .profile-name { display: none; }
+  .profile-pill { padding: 6px 10px 6px 6px; }
+
+  /* ── Grids ── */
+  .doctors-grid { grid-template-columns: 1fr; }
+  .quotes-grid  { grid-template-columns: 1fr; }
+  .symptom-modes { flex-direction: column; }
+  .mode-card { flex-direction: row; align-items: center; padding: 16px; text-align: left; gap: 16px; }
+  .mode-card i { font-size: 1.8rem; margin-bottom: 0; }
+
+  /* ── GPS stats grid ── */
+  .gps-stats-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Chat ── */
+  .chat-layout { flex-direction: column; height: auto; }
+  .chat-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); max-height: 180px; overflow-y: auto; }
+  .chat-main { min-height: 400px; }
+  .chat-messages { max-height: 280px; }
+  .msg { max-width: 88%; }
+
+  /* ── Tables ── */
+  .appt-table, .schedule-table, .appointments-table { font-size: 0.78rem; }
+  .appt-table th, .appt-table td,
+  .schedule-table th, .schedule-table td,
+  .appointments-table th, .appointments-table td { padding: 8px 10px; }
+
+  /* ── Modal ── */
+  .modal-card { padding: 22px 16px; margin: 0 16px; border-radius: 16px; }
+
+  /* ── Severity result ── */
+  .severity-result { flex-direction: column; gap: 12px; }
+
+  /* ── Schedule items ── */
+  .schedule-item { flex-wrap: wrap; }
+}
+
+/* ══════════════════════════════
+   RESPONSIVE — XS (≤ 400px)
+══════════════════════════════ */
+@media (max-width: 400px) {
+  .landing-title { font-size: 1.7rem; }
+  .auth-card { padding: 22px 14px; }
+  .top-bar { margin-bottom: 14px; }
+  .gps-stats-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ══════════════════════════════
+   GPS REAL MAP
+══════════════════════════════ */
+.gps-loading {
+  height: 400px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  background: linear-gradient(135deg, #e8f5f2, #d1ece6);
+}
+.gps-spinner {
+  width: 48px; height: 48px;
+  border: 4px solid rgba(10,110,94,0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.gps-error-banner {
+  display: none;
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin: 12px;
+}
+.gps-error-banner.visible { display: block; }
+
+.real-map {
+  height: 420px;
+  width: 100%;
+}
+
+.gps-coord-bar {
+  padding: 11px 16px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+  font-size: 0.83rem;
+  background: var(--primary-soft);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.gps-coord-bar strong { color: var(--primary); }
+
+.hospital-list { padding: 0; }
+.hospital-list-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.hospital-list-item:last-child { border-bottom: none; }
+.hospital-list-item:hover { background: var(--primary-soft); }
+.hospital-list-icon {
+  width: 40px; height: 40px;
+  background: var(--primary-soft);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.hospital-list-info { flex: 1; min-width: 0; }
+.hospital-list-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hospital-list-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+.hospital-list-dist { font-size: 0.85rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+.hospital-list-route-btn {
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.2s;
+}
+.hospital-list-route-btn:hover { background: var(--primary-light); }
+
+/* Route panel */
+.route-panel {
+  background: linear-gradient(135deg, #0a6e5e 0%, #14b8a0 100%);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  color: #fff;
+  display: none;
+  box-shadow: 0 4px 20px rgba(10,110,94,0.3);
+}
+.route-panel.visible { display: block; }
+.route-panel h4 { font-size: 1.05rem; margin-bottom: 10px; font-family: 'Playfair Display', serif; }
+.route-stats { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 14px; }
+.route-stat-label { font-size: 0.72rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.5px; }
+.route-stat-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+.route-navigate-btn {
+  margin-top: 16px;
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 9px;
+  padding: 9px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.route-navigate-btn:hover { background: rgba(255,255,255,0.35); }
+
+@media (max-width: 700px) {
+  .real-map { height: 300px; }
+  .gps-loading { height: 260px; }
 }
 </style>
 </head>
@@ -675,7 +897,7 @@ SCREEN 1: LANDING
  
 <div class="landing-body">
 <div class="landing-logo">🏥</div>
-<h1 class="landing-title" data-i18n="app_name">Med-Resugram</h1>
+<h1 class="landing-title" data-i18n="app_name">Med Resurgam</h1>
 <p class="landing-sub" data-i18n="app_tagline">Your intelligent health companion</p>
 <p class="landing-tagline" data-i18n="app_desc">Connecting patients with trusted doctors. Smarter care, closer to you.</p>
  
@@ -873,23 +1095,28 @@ SCREEN 2: AUTH
 SCREEN 3: PATIENT HOME
 ═══════════════════════════════════ -->
 <div class="screen" id="screen-patient">
-<nav class="sidebar">
+<!-- Sidebar backdrop for mobile -->
+<div class="sidebar-backdrop" id="patient-backdrop" onclick="closeSidebar('patient')"></div>
+<nav class="sidebar" id="patient-sidebar">
 <div class="sidebar-logo">
 <div class="sidebar-logo-icon">🏥</div>
-<div class="sidebar-logo-text">Med Resurgram</div>
+<div class="sidebar-logo-text">Med Resurgam</div>
 </div>
-<div class="nav-item active" onclick="switchTab('patient','home',this)"><i class="fa fa-home"></i> <span data-i18n="nav_home">Home</span></div>
-<div class="nav-item" onclick="switchTab('patient','inbox',this)"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">3</span></div>
-<div class="nav-item" onclick="switchTab('patient','symptoms',this)"><i class="fa fa-stethoscope"></i> <span data-i18n="nav_symptoms">Symptom Checker</span></div>
-<div class="nav-item" onclick="switchTab('patient','book',this)"><i class="fa fa-calendar-plus"></i> <span data-i18n="nav_book">Book Doctor</span></div>
-<div class="nav-item" onclick="switchTab('patient','gps',this)" style="margin-top:auto"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS & Location</span></div>
+<div class="nav-item active" onclick="switchTab('patient','home',this); closeSidebar('patient')"><i class="fa fa-home"></i> <span data-i18n="nav_home">Home</span></div>
+<div class="nav-item" onclick="switchTab('patient','inbox',this); closeSidebar('patient')"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">3</span></div>
+<div class="nav-item" onclick="switchTab('patient','symptoms',this); closeSidebar('patient')"><i class="fa fa-stethoscope"></i> <span data-i18n="nav_symptoms">Symptom Checker</span></div>
+<div class="nav-item" onclick="switchTab('patient','book',this); closeSidebar('patient')"><i class="fa fa-calendar-plus"></i> <span data-i18n="nav_book">Book Doctor</span></div>
+<div class="nav-item" onclick="switchTab('patient','gps',this); closeSidebar('patient')" style="margin-top:auto"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS & Location</span></div>
 <div class="nav-item" onclick="logoutToLanding()" style="color:#e63946"><i class="fa fa-sign-out-alt"></i> <span data-i18n="nav_logout">Logout</span></div>
 </nav>
  
 <div class="main-content">
 <div class="top-bar">
+<div style="display:flex; align-items:center; gap:10px;">
+<button class="hamburger-btn" onclick="openSidebar('patient')" aria-label="Open menu"><i class="fa fa-bars"></i></button>
 <h2 class="top-bar-title" id="p-page-title">Welcome back 👋</h2>
-<div style="display:flex; align-items:center; gap:14px;">
+</div>
+<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
 <div class="countdown-pill" id="countdown-pill">
 <i class="fa fa-clock"></i> Next appt: <strong id="countdown-text">2d 4h 30m</strong>
 </div>
@@ -951,9 +1178,7 @@ SCREEN 3: PATIENT HOME
 </div>
 </div>
 <div class="chat-messages" id="chat-messages">
-<div class="msg incoming"><div class="msg-bubble">Hello! How are you feeling today? Did the medication help?</div><div class="msg-time">09:14</div></div>
-<div class="msg outgoing"><div class="msg-bubble">Much better, thank you Doctor! The pain has reduced.</div><div class="msg-time">09:22</div></div>
-<div class="msg incoming"><div class="msg-bubble">Great news! Please continue with the full course and stay hydrated. 💧</div><div class="msg-time">09:25</div></div>
+<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:40px 20px;line-height:1.8">💬 Select a doctor to view your conversation.</div>
 </div>
 <div class="chat-input-bar">
 <input type="text" class="chat-input" placeholder="Type your message…" id="chat-input-field" onkeydown="if(event.key==='Enter')sendMsg()">
@@ -1058,47 +1283,117 @@ Detected: <span id="voice-symptom-text"></span>
 </div>
  
 <!-- BOOK TAB -->
-<div class="tab-content" id="patient-tab-book">
-<p class="section-title">Available Doctors Near You 📍</p>
-<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px">Showing doctors available in your area</p>
-<div class="doctors-grid" id="doctors-grid"></div>
+<input type="text" id="patientName" placeholder="Name">
+<input type="datetime-local" id="appointmentTime">
+
+<select id="reason" onchange="toggleSymptomInput()">
+    <option value="General checkup">General checkup</option>
+    <option value="Flu symptoms">Flu symptoms</option>
+</select>
+
+<div id="symptomDetails" style="display: none; margin-top: 10px;">
+    <textarea id="customSymptoms" placeholder="Describe your symptoms..."></textarea>
+    <button type="button" onclick="startVoiceRecognition()">🎤 Speak Symptoms</button>
+    <p id="status" style="font-size: 0.8em; color: gray;"></p>
 </div>
+
+<button onclick="saveBooking()">Book Appointment</button>
+<script>
+function saveBooking() {
+    // 1. Get values from inputs
+    const newBooking = {
+        name: document.getElementById('patientName').value,
+        time: document.getElementById('appointmentTime').value,
+        reason: document.getElementById('reason').value,
+        severity: "Medium", // You can make this dynamic too
+        status: "Pending"
+    };
+
+    // 2. Get existing bookings or start a new list
+    let bookings = JSON.parse(localStorage.getItem('allBookings')) || [];
+    
+    // 3. Add the new one and save back to memory
+    bookings.push(newBooking);
+    localStorage.setItem('allBookings', JSON.stringify(bookings));
+
+    alert("Booking Saved! The doctor can now see it.");
+}
+</script>
  
 <!-- GPS TAB -->
 <div class="tab-content" id="patient-tab-gps">
 <p class="section-title">GPS & Navigation 🗺️</p>
-<div class="map-container">
-<div class="map-placeholder">
-<div class="map-grid"></div>
-<div class="map-pin">📍</div>
-<div class="map-info">
-<h4>Your Current Location</h4>
-<p>Kimironko, Gasabo District, Kigali</p>
-</div>
-</div>
-<div id="map" style="height: 400px; width: 100%; border-radius: 10px;"></div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Booked Appointment Route Panel -->
+<div class="route-panel" id="patient-route-panel">
+  <h4>🧭 Route to Your Booked Doctor</h4>
+  <div style="font-size:0.88rem; opacity:0.9; margin-top:2px;">
+    Navigating to: <strong class="route-doctor"></strong>
+    &nbsp;·&nbsp; <span class="route-hospital" style="opacity:0.8"></span>
+  </div>
+  <div class="route-stats">
+    <div>
+      <div class="route-stat-label">Distance</div>
+      <div class="route-stat-value route-dist-val">–</div>
+    </div>
+    <div>
+      <div class="route-stat-label">Drive Time</div>
+      <div class="route-stat-value route-time-val">–</div>
+    </div>
+    <div>
+      <div class="route-stat-label">Appointment</div>
+      <div class="route-stat-value route-appt-val" style="font-size:0.88rem; line-height:1.4">–</div>
+    </div>
+  </div>
+  <button class="route-navigate-btn" onclick="openInGoogleMaps()">🗺️ Open in Google Maps</button>
 </div>
+
+<div class="map-container" id="patient-map-container">
+  <!-- Loading state -->
+  <div class="gps-loading" id="patient-gps-loading">
+    <div class="gps-spinner"></div>
+    <p style="color:var(--primary); font-weight:600">Acquiring your location…</p>
+    <p style="font-size:0.8rem; color:var(--text-muted)">Please allow location access when prompted</p>
+  </div>
+  <!-- Error banner -->
+  <div class="gps-error-banner" id="patient-gps-error"></div>
+  <!-- The real Leaflet map -->
+  <div class="real-map" id="patient-real-map" style="display:none"></div>
+  <!-- Coords bar -->
+  <div class="gps-coord-bar" id="patient-coord-bar" style="display:none">
+    <span>📍 <strong id="patient-gps-address">Locating…</strong></span>
+    <span>Lat: <strong id="patient-lat">–</strong></span>
+    <span>Lon: <strong id="patient-lon">–</strong></span>
+    <span class="map-status">● GPS Live</span>
+  </div>
 </div>
-<div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px">
-<div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
-<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Distance</div>
-<div style="font-size:1.5rem; font-weight:700; color:var(--primary)">3.2 km</div>
+
+<!-- Stats -->
+<div class="gps-stats-grid" style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px">
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Destination</div>
+    <div style="font-size:0.95rem; font-weight:700; color:var(--primary)" id="p-nearest-name">Finding…</div>
+  </div>
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Distance</div>
+    <div style="font-size:1.5rem; font-weight:700; color:var(--primary)" id="p-nearest-dist">–</div>
+  </div>
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Est. Drive Time</div>
+    <div style="font-size:1.5rem; font-weight:700; color:var(--primary)" id="p-nearest-walk">–</div>
+  </div>
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Next Appointment</div>
+    <div style="font-size:1.0rem; font-weight:700; color:var(--accent)" id="gps-countdown">–</div>
+  </div>
 </div>
-<div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
-<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Estimated Time</div>
-<div style="font-size:1.5rem; font-weight:700; color:var(--primary)">12 min</div>
-</div>
-<div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
-<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Appointment</div>
-<div style="font-size:1.0rem; font-weight:600; color:var(--text)">Apr 14 · 10:30 AM</div>
-</div>
-<div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
-<div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Time Until Appt</div>
-<div style="font-size:1.0rem; font-weight:700; color:var(--accent)" id="gps-countdown">2d 4h 30m</div>
-</div>
+
+<!-- Nearby hospitals list -->
+<div style="background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); margin-top:20px">
+  <div style="padding:16px 18px; border-bottom:1px solid var(--border); font-weight:600; font-size:0.97rem">🏥 Nearby Healthcare Facilities</div>
+  <div class="hospital-list" id="patient-hospital-list">
+    <p style="color:var(--text-muted); font-size:0.85rem; padding:14px 18px">Loading nearby hospitals…</p>
+  </div>
 </div>
 </div>
  
@@ -1124,22 +1419,27 @@ Detected: <span id="voice-symptom-text"></span>
 SCREEN 4: DOCTOR HOME
 ═══════════════════════════════════ -->
 <div class="screen" id="screen-doctor">
-<nav class="sidebar">
+<!-- Sidebar backdrop for mobile -->
+<div class="sidebar-backdrop" id="doctor-backdrop" onclick="closeSidebar('doctor')"></div>
+<nav class="sidebar" id="doctor-sidebar">
 <div class="sidebar-logo">
 <div class="sidebar-logo-icon">🏥</div>
 <div class="sidebar-logo-text">Med Resurgram</div>
 </div>
-<div class="nav-item active" onclick="switchTab('doctor','inbox',this)"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">5</span></div>
-<div class="nav-item" onclick="switchTab('doctor','schedule',this)"><i class="fa fa-calendar-alt"></i> <span data-i18n="nav_schedule">Schedule</span></div>
-<div class="nav-item" onclick="switchTab('doctor','appointments',this)"><i class="fa fa-user-clock"></i> <span data-i18n="nav_appointments">Appointments</span></div>
-<div class="nav-item" onclick="switchTab('doctor','profile',this)" style="margin-top:auto"><i class="fa fa-user-md"></i> <span data-i18n="nav_profile">My Profile</span></div>
-<div class="nav-item" onclick="switchTab('doctor','gps',this)"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS</span></div>
+<div class="nav-item active" onclick="switchTab('doctor','inbox',this); closeSidebar('doctor')"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">5</span></div>
+<div class="nav-item" onclick="switchTab('doctor','schedule',this); closeSidebar('doctor')"><i class="fa fa-calendar-alt"></i> <span data-i18n="nav_schedule">Schedule</span></div>
+<div class="nav-item" onclick="switchTab('doctor','appointments',this); closeSidebar('doctor')"><i class="fa fa-user-clock"></i> <span data-i18n="nav_appointments">Appointments</span></div>
+<div class="nav-item" onclick="switchTab('doctor','profile',this); closeSidebar('doctor')" style="margin-top:auto"><i class="fa fa-user-md"></i> <span data-i18n="nav_profile">My Profile</span></div>
+<div class="nav-item" onclick="switchTab('doctor','gps',this); closeSidebar('doctor')"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS</span></div>
 <div class="nav-item" onclick="logoutToLanding()" style="color:#e63946"><i class="fa fa-sign-out-alt"></i> <span data-i18n="nav_logout">Logout</span></div>
 </nav>
  
 <div class="main-content">
 <div class="top-bar">
+<div style="display:flex; align-items:center; gap:10px;">
+<button class="hamburger-btn" onclick="openSidebar('doctor')" aria-label="Open menu"><i class="fa fa-bars"></i></button>
 <h2 class="top-bar-title" id="d-page-title">Inbox</h2>
+</div>
 <div class="profile-pill" onclick="toggleProfileDd('doctor')">
 <div class="profile-avatar" style="background:#3a0ca3" id="d-avatar-text">AM</div>
 <span class="profile-name" id="d-display-name">Dr. Alice</span>
@@ -1157,29 +1457,8 @@ SCREEN 4: DOCTOR HOME
 <div class="chat-layout">
 <div class="chat-sidebar">
 <div class="chat-sidebar-header">Patients</div>
-<div class="chat-contact active" onclick="selectDoctorChat('Jean Claude N.','JC')">
-<div class="chat-contact-avatar">JC</div>
-<div class="chat-contact-info">
-<div class="chat-contact-name">Jean Claude N.</div>
-<div class="chat-contact-spec">General · Appt: Apr 14</div>
-<div class="chat-contact-preview">Much better, thank you!</div>
-</div>
-</div>
-<div class="chat-contact" onclick="selectDoctorChat('Marie Claire K.','MK')">
-<div class="chat-contact-avatar" style="background:#e63946">MK</div>
-<div class="chat-contact-info">
-<div class="chat-contact-name">Marie Claire K.</div>
-<div class="chat-contact-spec">Urgent · High severity</div>
-<div class="chat-contact-preview">The bleeding won't stop…</div>
-</div>
-</div>
-<div class="chat-contact" onclick="selectDoctorChat('Paul Habimana','PH')">
-<div class="chat-contact-avatar" style="background:#2a9d5c">PH</div>
-<div class="chat-contact-info">
-<div class="chat-contact-name">Paul Habimana</div>
-<div class="chat-contact-spec">Routine checkup</div>
-<div class="chat-contact-preview">Feeling a bit dizzy today</div>
-</div>
+<div id="doctor-chat-contacts">
+<div style="padding:20px 16px;color:var(--text-muted);font-size:0.83rem;text-align:center">Loading patients…</div>
 </div>
 </div>
 <div class="chat-main">
@@ -1191,9 +1470,7 @@ SCREEN 4: DOCTOR HOME
 </div>
 </div>
 <div class="chat-messages" id="d-chat-messages">
-<div class="msg incoming"><div class="msg-bubble">Good morning Doctor! I've been taking the medication you prescribed.</div><div class="msg-time">08:45</div></div>
-<div class="msg outgoing"><div class="msg-bubble">Good morning! How are you feeling? Any side effects?</div><div class="msg-time">08:48</div></div>
-<div class="msg incoming"><div class="msg-bubble">Much better, thank you! The pain has reduced significantly.</div><div class="msg-time">08:52</div></div>
+<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:40px 20px;line-height:1.8">Loading messages…</div>
 </div>
 <div class="chat-input-bar">
 <input type="text" class="chat-input" placeholder="Reply to patient…" id="d-chat-input" onkeydown="if(event.key==='Enter')sendDoctorMsg()">
@@ -1204,42 +1481,24 @@ SCREEN 4: DOCTOR HOME
 </div>
  
 <!-- SCHEDULE -->
-<div class="tab-content" id="doctor-tab-schedule">
-<p class="section-title">Upcoming Schedule 📅</p>
-<div class="schedule-list">
-<div class="schedule-item">
-<div class="schedule-date"><div class="schedule-day">14</div><div class="schedule-month">Apr</div></div>
-<div class="schedule-details">
-<div class="schedule-patient">Jean Claude Nshimiyimana</div>
-<div class="schedule-time">10:30 AM · 45 minutes</div>
-<div class="schedule-reason">General checkup, follow-up on medication</div>
+<div class="schedule-section">
+    <h2>Current Schedule</h2>
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Time</th>
+                <th>Reason</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="real-schedule-list"></tbody>
+    </table>
+    <div id="no-bookings-message" style="display:none; text-align:center; padding: 20px;">
+        <p>No current bookings. The schedule is clear.</p>
+    </div>
 </div>
-<span class="schedule-status status-confirmed">Confirmed</span>
-</div>
-<div class="schedule-item">
-<div class="schedule-date"><div class="schedule-day">14</div><div class="schedule-month">Apr</div></div>
-<div class="schedule-details">
-<div class="schedule-patient">Marie Claire Kaneza</div>
-<div class="schedule-time">02:00 PM · 30 minutes</div>
-<div class="schedule-reason">URGENT — Persistent bleeding, high severity</div>
-</div>
-<span class="schedule-status status-confirmed" style="background:var(--danger-soft); color:var(--danger)">Urgent</span>
-</div>
-<div class="schedule-item">
-<div class="schedule-date"><div class="schedule-day">15</div><div class="schedule-month">Apr</div></div>
-<div class="schedule-details">
-<div class="schedule-patient">Paul Habimana</div>
-<div class="schedule-time">09:00 AM · 20 minutes</div>
-<div class="schedule-reason">Dizziness and mild headache</div>
-</div>
-<span class="schedule-status status-pending">Pending</span>
-</div>
-<div class="schedule-item">
-<div class="schedule-date"><div class="schedule-day">16</div><div class="schedule-month">Apr</div></div>
-<div class="schedule-details">
-<div class="schedule-patient">Aline Uwimana</div>
-<div class="schedule-time">11:00 AM · 30 minutes</div>
-<div class="schedule-reason">Skin rashes — medium severity</div>
+    </table>
 </div>
 <span class="schedule-status status-confirmed">Confirmed</span>
 </div>
@@ -1247,51 +1506,55 @@ SCREEN 4: DOCTOR HOME
 </div>
  
 <!-- APPOINTMENTS -->
-<div class="tab-content" id="doctor-tab-appointments">
-<p class="section-title">All Appointments 👥</p>
-<table class="appt-table">
-<thead>
-<tr>
-<th>Patient</th>
-<th>Date & Time</th>
-<th>Reason</th>
-<th>Severity</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Jean Claude N.</strong></td>
-<td>Apr 14 · 10:30 AM</td>
-<td>General checkup</td>
-<td><span class="severity-badge badge-low" style="font-size:0.72rem">Low</span></td>
-<td><span class="schedule-status status-confirmed">Confirmed</span></td>
-</tr>
-<tr>
-<td><strong>Marie Claire K.</strong></td>
-<td>Apr 14 · 02:00 PM</td>
-<td>Persistent bleeding</td>
-<td><span class="severity-badge badge-high" style="font-size:0.72rem">High</span></td>
-<td><span class="schedule-status" style="background:var(--danger-soft); color:var(--danger)">Urgent</span></td>
-</tr>
-<tr>
-<td><strong>Paul Habimana</strong></td>
-<td>Apr 15 · 09:00 AM</td>
-<td>Dizziness</td>
-<td><span class="severity-badge badge-medium" style="font-size:0.72rem">Medium</span></td>
-<td><span class="schedule-status status-pending">Pending</span></td>
-</tr>
-<tr>
-<td><strong>Aline Uwimana</strong></td>
-<td>Apr 16 · 11:00 AM</td>
-<td>Skin rashes</td>
-<td><span class="severity-badge badge-medium" style="font-size:0.72rem">Medium</span></td>
-<td><span class="schedule-status status-confirmed">Confirmed</span></td>
-</tr>
-<tr>
-<td><strong>Diane Ingabire</strong></td>
-<td>Apr 18 · 03:00 PM</td>
-<td>Flu symptoms</td>
+<table class="appointments-table">
+    <thead>
+        <tr>
+            <th>Patient Name</th>
+            <th>Date & Time</th>
+            <th>Reason</th>
+            <th>Severity</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="appointment-list">
+        </tbody>
+</table>
+
+<script>
+function loadAppointments() {
+    const tableBody = document.getElementById('appointment-list');
+    
+    // 1. Pull the real data from memory
+    const bookings = JSON.parse(localStorage.getItem('allBookings')) || [];
+
+    // 2. If no one has booked yet
+    if (bookings.length === 0) {
+        tableBody.innerHTML = "<tr><td colspan='5'>No appointments found.</td></tr>";
+        return;
+    }
+
+    // 3. Clear the table and build it from the data
+    tableBody.innerHTML = "";
+    bookings.forEach(patient => {
+        const row = `
+            <tr>
+                <td><strong>${patient.name}</strong></td>
+                <td>${patient.time}</td>
+                <td>${patient.reason}</td>
+                <td><span class="severity-badge badge-${patient.severity.toLowerCase()}">${patient.severity}</span></td>
+                <td><span class="schedule-status status-${patient.status.toLowerCase()}">${patient.status}</span></td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+}
+
+// Load the list immediately when the page opens
+loadAppointments();
+
+// Optional: Refresh the list every 5 seconds to see new bookings
+setInterval(loadAppointments, 5000);
+</script>
 <td><span class="severity-badge badge-low" style="font-size:0.72rem">Low</span></td>
 <td><span class="schedule-status status-pending">Pending</span></td>
 </tr>
@@ -1318,23 +1581,39 @@ SCREEN 4: DOCTOR HOME
  
 <!-- DOCTOR GPS -->
 <div class="tab-content" id="doctor-tab-gps">
-<p class="section-title">GPS & Patient Locations 🗺️</p>
-<div class="map-container">
-<div class="map-placeholder" style="height:300px">
-<div class="map-grid"></div>
-<div style="position:relative; z-index:2; text-align:center">
-<div style="font-size:2.5rem; animation: bounce 2s infinite">🏥</div>
-<div style="font-size:1.8rem; margin-top:-10px; animation: bounce 2s 0.5s infinite">📍</div>
+<p class="section-title">GPS & My Location 🗺️</p>
+<div class="map-container" id="doctor-map-container">
+  <div class="gps-loading" id="doctor-gps-loading">
+    <div class="gps-spinner"></div>
+    <p style="color:var(--primary); font-weight:600">Acquiring your location…</p>
+    <p style="font-size:0.8rem; color:var(--text-muted)">Please allow location access when prompted</p>
+  </div>
+  <div class="gps-error-banner" id="doctor-gps-error"></div>
+  <div class="real-map" id="doctor-real-map" style="display:none"></div>
+  <div class="gps-coord-bar" id="doctor-coord-bar" style="display:none">
+    <span>📍 <strong id="doctor-gps-address">Locating…</strong></span>
+    <span>Lat: <strong id="doctor-lat">–</strong></span>
+    <span>Lon: <strong id="doctor-lon">–</strong></span>
+    <span class="map-status">● GPS Live</span>
+  </div>
 </div>
-<div class="map-info">
-<h4>King Faisal Hospital + 3 Patient Locations</h4>
-<p>Tracking appointment destinations in Kigali</p>
+
+<div class="gps-stats-grid" style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:16px">
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Your Location</div>
+    <div style="font-size:0.95rem; font-weight:700; color:var(--primary)" id="d-location-label">Locating…</div>
+  </div>
+  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
+    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">GPS Accuracy</div>
+    <div style="font-size:1.5rem; font-weight:700; color:var(--primary)" id="d-accuracy">–</div>
+  </div>
 </div>
-</div>
-<div class="map-bar">
-<div class="map-loc"><strong>Your clinic:</strong> King Faisal Hospital, Kiyovu &nbsp;|&nbsp; <strong>Next patient from:</strong> Kimironko, Gasabo</div>
-<span class="map-status">● GPS Active</span>
-</div>
+
+<div style="background:var(--surface); border-radius:var(--radius); border:1px solid var(--border); margin-top:20px">
+  <div style="padding:16px 18px; border-bottom:1px solid var(--border); font-weight:600; font-size:0.97rem">🏥 Nearby Clinics & Hospitals</div>
+  <div class="hospital-list" id="doctor-hospital-list">
+    <p style="color:var(--text-muted); font-size:0.85rem">Loading nearby facilities…</p>
+  </div>
 </div>
 </div>
 </div>
@@ -1399,10 +1678,10 @@ const selectedSymptoms = new Set();
 // TRANSLATIONS
 // ═══════════════════════════════════
 const T = {
-en: { app_name:'Med-Resugram', app_tagline:'Your intelligent health companion', app_desc:'Connecting patients with trusted doctors. Smarter care, closer to you.', patient:'Patient', patient_desc:'Access doctors, check symptoms, book appointments', doctor:'Doctor', doctor_desc:'Manage patients, schedules and appointments', login:'Log In', signup:'Sign Up', nav_home:'Home', nav_inbox:'Inbox', nav_symptoms:'Symptom Checker', nav_book:'Book Doctor', nav_gps:'GPS & Location', nav_logout:'Logout', nav_schedule:'Schedule', nav_appointments:'Appointments', nav_profile:'My Profile' },
-fr: { app_name:'Med-Resugram', app_tagline:'Votre compagnon santé intelligent', app_desc:'Connecter les patients aux médecins de confiance. Des soins plus intelligents, plus proches de vous.', patient:'Patient', patient_desc:'Accéder aux médecins, vérifier les symptômes, prendre rendez-vous', doctor:'Médecin', doctor_desc:'Gérer patients, horaires et rendez-vous', login:'Connexion', signup:'S\'inscrire', nav_home:'Accueil', nav_inbox:'Boîte de réception', nav_symptoms:'Vérificateur de symptômes', nav_book:'Prendre Rendez-vous', nav_gps:'GPS & Localisation', nav_logout:'Déconnexion', nav_schedule:'Calendrier', nav_appointments:'Rendez-vous', nav_profile:'Mon Profil' },
-rw: { app_name:'Med-Resugram', app_tagline:'Inshuti yawe y\'ubuzima nziza', app_desc:"Guhuza abarwayi n'inzobere mu buzima. Ubuvuzi bwiza, bwegereye.", patient:'Umurwayi', patient_desc:"Gera ku muganga, reba ibimenyetso, fata rendez-vous", doctor:'Umuganga', doctor_desc:'Gucunga abarwayi, gahunda, n\'ibyiciro', login:'Injira', signup:'Kwiyandikisha', nav_home:'Ahabanza', nav_inbox:'Ubutumwa', nav_symptoms:'Kumenya Indwara', nav_book:'Gusaba Muganga', nav_gps:'Ikarita na GPS', nav_logout:'Sohoka', nav_schedule:'Gahunda', nav_appointments:'Rendez-vous yanjye', nav_profile:'Konti Yanjye' },
-sw: { app_name:'Med-Resugram', app_tagline:'Mwenzako wa afya mwerevu', app_desc:'Kuunganisha wagonjwa na madaktari wanaotegemewa. Huduma bora, karibu nawe.', patient:'Mgonjwa', patient_desc:'Pata madaktari, angalia dalili, weka miadi', doctor:'Daktari', doctor_desc:'Simamia wagonjwa, ratiba na miadi', login:'Ingia', signup:'Jisajili', nav_home:'Nyumbani', nav_inbox:'Kikasha', nav_symptoms:'Kichunguzi Dalili', nav_book:'Weka Miadi', nav_gps:'GPS na Mahali', nav_logout:'Ondoka', nav_schedule:'Ratiba', nav_appointments:'Miadi Yangu', nav_profile:'Wasifu Wangu' }
+en: { app_name:'Med Resurgam', app_tagline:'Your intelligent health companion', app_desc:'Connecting patients with trusted doctors. Smarter care, closer to you.', patient:'Patient', patient_desc:'Access doctors, check symptoms, book appointments', doctor:'Doctor', doctor_desc:'Manage patients, schedules and appointments', login:'Log In', signup:'Sign Up', nav_home:'Home', nav_inbox:'Inbox', nav_symptoms:'Symptom Checker', nav_book:'Book Doctor', nav_gps:'GPS & Location', nav_logout:'Logout', nav_schedule:'Schedule', nav_appointments:'Appointments', nav_profile:'My Profile' },
+fr: { app_name:'Med Resurgam', app_tagline:'Votre compagnon santé intelligent', app_desc:'Connecter les patients aux médecins de confiance. Des soins plus intelligents, plus proches de vous.', patient:'Patient', patient_desc:'Accéder aux médecins, vérifier les symptômes, prendre rendez-vous', doctor:'Médecin', doctor_desc:'Gérer patients, horaires et rendez-vous', login:'Connexion', signup:'S\'inscrire', nav_home:'Accueil', nav_inbox:'Boîte de réception', nav_symptoms:'Vérificateur de symptômes', nav_book:'Prendre Rendez-vous', nav_gps:'GPS & Localisation', nav_logout:'Déconnexion', nav_schedule:'Calendrier', nav_appointments:'Rendez-vous', nav_profile:'Mon Profil' },
+rw: { app_name:'Med Resurgam', app_tagline:'Inshuti yawe y\'ubuzima nziza', app_desc:"Guhuza abarwayi n'inzobere mu buzima. Ubuvuzi bwiza, bwegereye.", patient:'Umurwayi', patient_desc:"Gera ku muganga, reba ibimenyetso, fata rendez-vous", doctor:'Umuganga', doctor_desc:'Gucunga abarwayi, gahunda, n\'ibyiciro', login:'Injira', signup:'Kwiyandikisha', nav_home:'Ahabanza', nav_inbox:'Ubutumwa', nav_symptoms:'Kumenya Indwara', nav_book:'Gusaba Muganga', nav_gps:'Ikarita na GPS', nav_logout:'Sohoka', nav_schedule:'Gahunda', nav_appointments:'Rendez-vous yanjye', nav_profile:'Konti Yanjye' },
+sw: { app_name:'Med Resurgam', app_tagline:'Mwenzako wa afya mwerevu', app_desc:'Kuunganisha wagonjwa na madaktari wanaotegemewa. Huduma bora, karibu nawe.', patient:'Mgonjwa', patient_desc:'Pata madaktari, angalia dalili, weka miadi', doctor:'Daktari', doctor_desc:'Simamia wagonjwa, ratiba na miadi', login:'Ingia', signup:'Jisajili', nav_home:'Nyumbani', nav_inbox:'Kikasha', nav_symptoms:'Kichunguzi Dalili', nav_book:'Weka Miadi', nav_gps:'GPS na Mahali', nav_logout:'Ondoka', nav_schedule:'Ratiba', nav_appointments:'Miadi Yangu', nav_profile:'Wasifu Wangu' }
 };
 let lang = 'en';
  
@@ -1573,27 +1852,28 @@ loginAs(user);
 }
  
 function loginAs(user) {
-localStorage.setItem('medCurrentUser', JSON.stringify(user));
-currentUser = user;
-if (user.role === 'patient' || currentRole === 'patient') {
-const firstName = (user.name || 'Patient').split(' ')[0];
-document.getElementById('p-display-name').textContent = firstName;
-document.getElementById('p-avatar-text').textContent = user.initials || 'P';
-document.getElementById('p-profile-avatar').textContent = user.initials || 'P';
-document.getElementById('p-profile-name').textContent = user.name || 'Patient';
-showScreen('screen-patient');
-switchTab('patient','home',null);
-buildQuotes();
-buildDoctors();
-buildSymptomTags();
-startCountdown();
-} else {
-const firstName = (user.name || 'Doctor').replace('Dr.','').trim().split(' ')[0];
-document.getElementById('d-display-name').textContent = 'Dr. ' + firstName;
-document.getElementById('d-avatar-text').textContent = user.initials || 'DR';
-showScreen('screen-doctor');
-switchTab('doctor','inbox',null);
-}
+  localStorage.setItem('medCurrentUser', JSON.stringify(user));
+  currentUser = user;
+  if (user.role === 'patient' || currentRole === 'patient') {
+    const firstName = (user.name || 'Patient').split(' ')[0];
+    document.getElementById('p-display-name').textContent = firstName;
+    document.getElementById('p-avatar-text').textContent = user.initials || 'P';
+    document.getElementById('p-profile-avatar').textContent = user.initials || 'P';
+    document.getElementById('p-profile-name').textContent = user.name || 'Patient';
+    showScreen('screen-patient');
+    switchTab('patient','home',null);
+    buildQuotes();
+    buildDoctors();
+    buildSymptomTags();
+    startCountdown();
+    _seedWelcomeMessages(user);   // seed first-time welcome msgs from doctors
+  } else {
+    const firstName = (user.name || 'Doctor').replace('Dr.','').trim().split(' ')[0];
+    document.getElementById('d-display-name').textContent = 'Dr. ' + firstName;
+    document.getElementById('d-avatar-text').textContent = user.initials || 'DR';
+    showScreen('screen-doctor');
+    switchTab('doctor','inbox',null);  // buildDoctorInbox called inside switchTab
+  }
 }
  
 function logoutToLanding() { 
@@ -1606,15 +1886,25 @@ showScreen('screen-landing');
 // TAB SWITCHING
 // ═══════════════════════════════════
 function switchTab(role, tab, clickedEl) {
-const prefix = role === 'patient' ? 'patient' : 'doctor';
-document.querySelectorAll(`#screen-${role} .tab-content`).forEach(t => t.classList.remove('active'));
-document.querySelectorAll(`#screen-${role} .nav-item`).forEach(n => n.classList.remove('active'));
-const tabEl = document.getElementById(`${prefix}-tab-${tab}`);
-if (tabEl) tabEl.classList.add('active');
-if (clickedEl) clickedEl.classList.add('active');
-const titles = { home:'Welcome back 👋', inbox:'Inbox 💬', symptoms:'Symptom Checker', book:'Book a Doctor', gps:'GPS & Navigation', profile:'My Profile', schedule:'Schedule', appointments:'Appointments' };
-const titleEl = document.getElementById(role === 'patient' ? 'p-page-title' : 'd-page-title');
-if (titleEl) titleEl.textContent = titles[tab] || tab;
+  const prefix = role === 'patient' ? 'patient' : 'doctor';
+  document.querySelectorAll(`#screen-${role} .tab-content`).forEach(t => t.classList.remove('active'));
+  document.querySelectorAll(`#screen-${role} .nav-item`).forEach(n => n.classList.remove('active'));
+  const tabEl = document.getElementById(`${prefix}-tab-${tab}`);
+  if (tabEl) tabEl.classList.add('active');
+  if (clickedEl) clickedEl.classList.add('active');
+  const titles = { home:'Welcome back 👋', inbox:'Inbox 💬', symptoms:'Symptom Checker', book:'Book a Doctor', gps:'GPS & Navigation', profile:'My Profile', schedule:'Schedule', appointments:'Appointments' };
+  const titleEl = document.getElementById(role === 'patient' ? 'p-page-title' : 'd-page-title');
+  if (titleEl) titleEl.textContent = titles[tab] || tab;
+  if (tab === 'gps')    setTimeout(() => initGPS(role), 120);
+  if (tab === 'inbox' && role === 'doctor')  setTimeout(buildDoctorInbox, 60);
+  if (tab === 'inbox' && role === 'patient') setTimeout(() => {
+    if (!_curPatientDoctor) {
+      _curPatientDoctor = 'Dr. Alice Mukeshimana';
+      document.getElementById('chat-name').textContent = 'Dr. Alice Mukeshimana';
+      document.getElementById('chat-avatar').textContent = 'AM';
+      renderConvMsgs('chat-messages', _pConvId('Dr. Alice Mukeshimana'), 'patient');
+    }
+  }, 60);
 }
  
 function toggleProfileDd(role) {
@@ -1638,9 +1928,9 @@ const QUOTES = [
 { text:"He who has health has hope; and he who has hope has everything.", author:"Arabian Proverb", cls:"qc6" },
 { text:"Prevention is better than cure. Small habits today build a strong body tomorrow.", author:"Desiderius Erasmus", cls:"qc7" },
 { text:"Good health and good sense are two of life's greatest blessings.", author:"Publilius Syrus", cls:"qc8" },
-{ text:"Your health is your most precious asset. Guard it fiercely, cherish it daily.", author:"Med-Resugram", cls:"qc1" },
+{ text:"Your health is your most precious asset. Guard it fiercely, cherish it daily.", author:"Med Resurgam", cls:"qc1" },
 { text:"Sleep is the golden chain that ties health and our bodies together.", author:"Thomas Dekker", cls:"qc4" },
-{ text:"Eat well. Move often. Sleep enough. Repeat. These four habits are medicine.", author:"Med-Resugram", cls:"qc5" },
+{ text:"Eat well. Move often. Sleep enough. Repeat. These four habits are medicine.", author:"Med Resurgam", cls:"qc5" },
 { text:"Water is the driving force of all nature — and of all healing.", author:"Leonardo da Vinci", cls:"qc7" }
 ];
  
@@ -1694,11 +1984,28 @@ document.getElementById('book-modal').classList.add('open');
 }
 function closeModal() { document.getElementById('book-modal').classList.remove('open'); }
 function confirmBooking() {
-const date = document.getElementById('book-date').value;
-const time = document.getElementById('book-time').value;
-const reason = document.getElementById('book-reason').value;
-closeModal();
-alert(`✅ Appointment booked!\n${document.getElementById('modal-doctor-name').textContent}\n${date} at ${time}\nReason: ${reason || 'Not specified'}`);
+  const date = document.getElementById('book-date').value;
+  const time = document.getElementById('book-time').value;
+  const reason = document.getElementById('book-reason').value;
+  const doctorName = document.getElementById('modal-doctor-name').textContent;
+  if (!date) { alert('Please select a date for your appointment.'); return; }
+
+  // Save booked appointment so GPS can route to the hospital
+  const doc = DEMO_DOCTORS.find(d => d.name === doctorName);
+  const appt = { doctorName, hospital: doc ? doc.hospital : '', date, time, reason, dist: doc ? doc.dist : null, lat: doc ? doc.lat : null, lon: doc ? doc.lon : null };
+  localStorage.setItem('medBookedAppointment', JSON.stringify(appt));
+
+  // Reset GPS so it re-draws route next time
+  if (gpsState.patient.initialized) {
+    const s = gpsState.patient;
+    if (s.userMarker) {
+      const ll = s.userMarker.getLatLng();
+      showRouteToDoctor('patient', ll.lat, ll.lng, appt);
+    }
+  }
+
+  closeModal();
+  alert(`✅ Appointment booked!\n${doctorName}\n${date} at ${time}\nReason: ${reason || 'Not specified'}\n\n📍 Go to GPS & Navigation to see your route!`);
 }
  
 // ═══════════════════════════════════
@@ -1837,46 +2144,169 @@ result.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
  
 // ═══════════════════════════════════
-// CHAT
+// REAL MESSAGING SYSTEM
 // ═══════════════════════════════════
+
+const _MSG_KEY = 'medMessages';
+let _curPatientDoctor = null;   // full name of doctor selected by patient
+let _curDoctorConvId  = null;   // convId currently open on doctor side
+
+function _getMsgs()        { try { return JSON.parse(localStorage.getItem(_MSG_KEY) || '[]'); } catch(e) { return []; } }
+function _saveMsgs(a)      { localStorage.setItem(_MSG_KEY, JSON.stringify(a)); }
+function _convMsgs(cid)    { return _getMsgs().filter(m => m.convId === cid); }
+function _pConvId(docName) { return (currentUser?.email || 'guest') + '|||' + docName; }
+function _ea(s)            { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }  // escape attr
+function _eh(s)            { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }  // escape html
+
+function _addMsg(convId, sender, senderName, text) {
+  const a = _getMsgs();
+  a.push({ convId, sender, senderName, text, timestamp: Date.now() });
+  _saveMsgs(a);
+}
+
+function renderConvMsgs(containerId, convId, viewAs) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const msgs = _convMsgs(convId);
+  if (!msgs.length) {
+    el.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:40px 20px;line-height:1.8">
+      ${viewAs === 'patient' ? '💬 No messages yet — say hello to your doctor!' : '💬 No messages in this conversation yet.'}
+    </div>`;
+    return;
+  }
+  el.innerHTML = msgs.map(m => {
+    const own  = m.sender === viewAs;
+    const side = own ? 'outgoing' : 'incoming';
+    const t    = new Date(m.timestamp).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    return `<div class="msg ${side}"><div class="msg-bubble">${_eh(m.text)}</div><div class="msg-time">${t}</div></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ---- Patient side ----
 function selectChat(name, initials, spec) {
-document.getElementById('chat-name').textContent = name;
-document.getElementById('chat-avatar').textContent = initials;
-document.querySelectorAll('#patient-tab-inbox .chat-contact').forEach(c => c.classList.remove('active'));
-event.currentTarget.classList.add('active');
+  document.getElementById('chat-name').textContent   = name;
+  document.getElementById('chat-avatar').textContent = initials;
+  document.querySelectorAll('#patient-tab-inbox .chat-contact').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  _curPatientDoctor = name;
+  renderConvMsgs('chat-messages', _pConvId(name), 'patient');
 }
- 
+
 function sendMsg() {
-const input = document.getElementById('chat-input-field');
-const text = input.value.trim();
-if (!text) return;
-const msgs = document.getElementById('chat-messages');
-const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-msgs.innerHTML += `<div class="msg outgoing"><div class="msg-bubble">${text}</div><div class="msg-time">${time}</div></div>`;
-input.value = '';
-msgs.scrollTop = msgs.scrollHeight;
-setTimeout(() => {
-msgs.innerHTML += `<div class="msg incoming"><div class="msg-bubble">Thank you for sharing that. I'll review and get back to you shortly. Stay well! 🩺</div><div class="msg-time">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div></div>`;
-msgs.scrollTop = msgs.scrollHeight;
-}, 1200);
+  const input = document.getElementById('chat-input-field');
+  const text  = input.value.trim();
+  if (!text) return;
+  const docName    = _curPatientDoctor || document.getElementById('chat-name').textContent;
+  const convId     = _pConvId(docName);
+  const senderName = (currentUser?.name || 'Patient').split(' ')[0];
+  _addMsg(convId, 'patient', senderName, text);
+  renderConvMsgs('chat-messages', convId, 'patient');
+  input.value = '';
 }
- 
+
+// ---- Doctor side ----
+function _openDConv(el) {
+  document.querySelectorAll('#doctor-tab-inbox .chat-contact').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('d-chat-name').textContent   = el.getAttribute('data-pname') || 'Patient';
+  document.getElementById('d-chat-avatar').textContent = el.getAttribute('data-pinit') || 'P';
+  _curDoctorConvId = el.getAttribute('data-convid');
+  renderConvMsgs('d-chat-messages', _curDoctorConvId, 'doctor');
+}
+
 function selectDoctorChat(name, initials) {
-document.getElementById('d-chat-name').textContent = name;
-document.getElementById('d-chat-avatar').textContent = initials;
-document.querySelectorAll('#doctor-tab-inbox .chat-contact').forEach(c => c.classList.remove('active'));
-event.currentTarget.classList.add('active');
+  // legacy call — kept for any existing references
+  document.getElementById('d-chat-name').textContent   = name;
+  document.getElementById('d-chat-avatar').textContent = initials;
+  document.querySelectorAll('#doctor-tab-inbox .chat-contact').forEach(c => c.classList.remove('active'));
+  if (event?.currentTarget) event.currentTarget.classList.add('active');
 }
- 
+
 function sendDoctorMsg() {
-const input = document.getElementById('d-chat-input');
-const text = input.value.trim();
-if (!text) return;
-const msgs = document.getElementById('d-chat-messages');
-const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-msgs.innerHTML += `<div class="msg outgoing"><div class="msg-bubble">${text}</div><div class="msg-time">${time}</div></div>`;
-input.value = '';
-msgs.scrollTop = msgs.scrollHeight;
+  const input = document.getElementById('d-chat-input');
+  const text  = input.value.trim();
+  if (!text || !_curDoctorConvId) return;
+  const senderName = currentUser?.name || 'Doctor';
+  _addMsg(_curDoctorConvId, 'doctor', senderName, text);
+  renderConvMsgs('d-chat-messages', _curDoctorConvId, 'doctor');
+  input.value = '';
+}
+
+// ---- Build doctor's inbox from stored messages ----
+function buildDoctorInbox() {
+  const docName   = currentUser?.name || '';
+  const allMsgs   = _getMsgs();
+  const mine      = allMsgs.filter(m => m.convId.endsWith('|||' + docName));
+
+  // Group by convId
+  const map = {};
+  mine.forEach(m => {
+    if (!map[m.convId]) map[m.convId] = { convId: m.convId, msgs: [], pName: 'Patient', pInit: 'P' };
+    map[m.convId].msgs.push(m);
+    if (m.sender === 'patient') {
+      map[m.convId].pName = m.senderName;
+      map[m.convId].pInit = m.senderName.split(' ').slice(0,2).map(n => n[0] || '').join('').toUpperCase() || 'P';
+    }
+  });
+
+  const convs = Object.values(map).sort((a,b) =>
+    Math.max(...b.msgs.map(m=>m.timestamp)) - Math.max(...a.msgs.map(m=>m.timestamp))
+  );
+
+  const el = document.getElementById('doctor-chat-contacts');
+  if (!el) return;
+
+  const colors = ['var(--primary)','#e63946','#2a9d5c','#3a0ca3','#f4a261','#c77dff'];
+
+  if (!convs.length) {
+    el.innerHTML = '<div style="padding:20px 16px;color:var(--text-muted);font-size:0.83rem;text-align:center">No patient messages yet.<br>Patients will appear here once they message you.</div>';
+    document.getElementById('d-chat-messages').innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:40px 20px">No conversations yet.</div>';
+    return;
+  }
+
+  el.innerHTML = convs.map((c, i) => {
+    const last    = c.msgs[c.msgs.length - 1];
+    const preview = last.text.length > 40 ? last.text.slice(0,40) + '…' : last.text;
+    const spec    = last.sender === 'patient' ? 'New message' : 'You replied';
+    return `<div class="chat-contact${i===0?' active':''}" onclick="_openDConv(this)"
+      data-pname="${_ea(c.pName)}" data-pinit="${_ea(c.pInit)}" data-convid="${_ea(c.convId)}">
+      <div class="chat-contact-avatar" style="background:${colors[i%colors.length]}">${_eh(c.pInit)}</div>
+      <div class="chat-contact-info">
+        <div class="chat-contact-name">${_eh(c.pName)}</div>
+        <div class="chat-contact-spec">${spec}</div>
+        <div class="chat-contact-preview">${_eh(preview)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Auto-open first conversation
+  _curDoctorConvId = convs[0].convId;
+  document.getElementById('d-chat-name').textContent   = convs[0].pName;
+  document.getElementById('d-chat-avatar').textContent = convs[0].pInit;
+  renderConvMsgs('d-chat-messages', _curDoctorConvId, 'doctor');
+}
+
+// ---- Seed welcome messages on patient's first login ----
+function _seedWelcomeMessages(user) {
+  const key = 'seeded_' + user.email;
+  if (localStorage.getItem(key)) return;
+  const now  = Date.now();
+  const firstName = (user.name || 'there').split(' ')[0];
+  const seeds = [
+    { convId: user.email+'|||Dr. Alice Mukeshimana',  sender:'doctor', senderName:'Dr. Alice Mukeshimana',
+      text: `Hello ${firstName}! Welcome to Med Resurgam. I’m Dr. Alice Mukeshimana, your General Practitioner. Feel free to message me anytime about your health concerns! 🩺`, timestamp: now - 10800000 },
+    { convId: user.email+'|||Dr. Alice Mukeshimana',  sender:'doctor', senderName:'Dr. Alice Mukeshimana',
+      text: 'Remember to take your medication regularly and stay hydrated. See you at your next appointment! 💧', timestamp: now - 10000000 },
+    { convId: user.email+'|||Dr. Patrick Nzeyimana', sender:'doctor', senderName:'Dr. Patrick Nzeyimana',
+      text: `Good day ${firstName}! I’m Dr. Patrick Nzeyimana, Cardiologist at CHUK. Reach out any time for cardiovascular advice. 💙`, timestamp: now - 7200000 },
+    { convId: user.email+'|||Dr. Grace Uwimana',     sender:'doctor', senderName:'Dr. Grace Uwimana',
+      text: `Hi ${firstName}! Dr. Grace Uwimana here — Dermatologist at Kibagabaga Hospital. For any skin concerns, I’m here to help! 🌿`, timestamp: now - 3600000 },
+  ];
+  const existing = _getMsgs();
+  seeds.forEach(s => existing.push(s));
+  _saveMsgs(existing);
+  localStorage.setItem(key, '1');
 }
  
 // ═══════════════════════════════════
@@ -1909,6 +2339,24 @@ const name = document.getElementById('edit-d-name').value;
 document.getElementById('d-display-name').textContent = 'Dr. ' + name.replace('Dr.','').trim().split(' ')[0];
 alert('Profile updated successfully!');
 }
+
+// ═══════════════════════════════════
+// RESPONSIVE SIDEBAR HELPERS
+// ═══════════════════════════════════
+function openSidebar(role) {
+  const sidebar = document.getElementById(role + '-sidebar');
+  const backdrop = document.getElementById(role + '-backdrop');
+  if (sidebar) sidebar.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar(role) {
+  const sidebar = document.getElementById(role + '-sidebar');
+  const backdrop = document.getElementById(role + '-backdrop');
+  if (sidebar) sidebar.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
  
 // ═══════════════════════════════════
 // INIT
@@ -1919,6 +2367,386 @@ if (savedUser) {
     try { loginAs(JSON.parse(savedUser)); } catch(e){}
 }
 
+// ═══════════════════════════════════════════════════
+// REAL GPS — Leaflet + OSRM routing + Overpass API
+// ═══════════════════════════════════════════════════
+
+/** Hardcoded coords for known Kigali hospitals (fallback when Overpass times out) */
+const HOSPITAL_COORDS = {
+  'King Faisal Hospital': { lat: -1.9441, lon: 30.0928 },
+  'CHUK':                 { lat: -1.9497, lon: 30.0619 },
+  'Kibagabaga Hospital':  { lat: -1.9246, lon: 30.1104 },
+  'Kacyiru Hospital':     { lat: -1.9385, lon: 30.0863 },
+  'Muhima Hospital':      { lat: -1.9576, lon: 30.0556 },
+};
+
+// Per-role GPS state
+const gpsState = {
+  patient: { map: null, userMarker: null, accuracyCircle: null, destMarker: null, routeLayer: null, watchId: null, initialized: false, lastLat: null, lastLon: null },
+  doctor:  { map: null, userMarker: null, accuracyCircle: null, destMarker: null, routeLayer: null, watchId: null, initialized: false, lastLat: null, lastLon: null }
+};
+
+// Track booked destination for Google Maps link
+let _bookedDestCoords = null;
+
+function initGPS(role) {
+  const st = gpsState[role];
+  if (st.initialized) {
+    // Just force the map to re-render if it exists
+    if (st.map) st.map.invalidateSize();
+    return;
+  }
+  st.initialized = true;
+
+  if (!navigator.geolocation) {
+    _showGPSError(role, 'Geolocation is not supported by your browser.');
+    return;
+  }
+
+  // One-shot for initial load
+  navigator.geolocation.getCurrentPosition(
+    pos => _onGotPosition(role, pos),
+    err => _onGPSError(role, err),
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+  );
+
+  // Continuous tracking
+  st.watchId = navigator.geolocation.watchPosition(
+    pos => _onPositionUpdate(role, pos),
+    err => console.warn('GPS watch:', err.message),
+    { enableHighAccuracy: true, maximumAge: 8000 }
+  );
+}
+
+function _onGotPosition(role, pos) {
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
+  const acc = Math.round(pos.coords.accuracy);
+  const st  = gpsState[role];
+  st.lastLat = lat; st.lastLon = lon;
+
+  // Hide spinner, show map
+  const loadEl  = document.getElementById(`${role}-gps-loading`);
+  const mapEl   = document.getElementById(`${role}-real-map`);
+  const coordEl = document.getElementById(`${role}-coord-bar`);
+  if (loadEl)  loadEl.style.display = 'none';
+  if (mapEl)   mapEl.style.display  = 'block';
+  if (coordEl) coordEl.style.display = 'flex';
+
+  _setCoordBar(role, lat, lon);
+  if (role === 'doctor') {
+    const dAcc = document.getElementById('d-accuracy');
+    if (dAcc) dAcc.textContent = acc + ' m';
+  }
+
+  // Build Leaflet map (if not done yet)
+  if (!st.map) {
+    st.map = L.map(`${role}-real-map`, { zoomControl: true, attributionControl: true }).setView([lat, lon], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(st.map);
+
+    // Pulsing user-dot icon
+    const youIcon = L.divIcon({
+      html: `<div style="position:relative;width:22px;height:22px;">
+               <div style="position:absolute;inset:0;border-radius:50%;background:#0a6e5e;border:3px solid #fff;box-shadow:0 0 0 0 rgba(10,110,94,0.5);animation:gpsPulse 2s infinite;"></div>
+             </div>
+             <style>@keyframes gpsPulse{0%{box-shadow:0 0 0 0 rgba(10,110,94,0.5)}70%{box-shadow:0 0 0 12px rgba(10,110,94,0)}100%{box-shadow:0 0 0 0 rgba(10,110,94,0)}}</style>`,
+      className: '',
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
+    });
+    st.userMarker = L.marker([lat, lon], { icon: youIcon, zIndexOffset: 1000 })
+      .addTo(st.map)
+      .bindPopup('<b>📍 You are here</b>', { maxWidth: 160 });
+
+    // Accuracy circle
+    st.accuracyCircle = L.circle([lat, lon], {
+      radius: acc, color: '#0a6e5e', fillColor: '#0a6e5e',
+      fillOpacity: 0.08, weight: 1
+    }).addTo(st.map);
+  }
+
+  // Reverse-geocode address
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+    .then(r => r.json())
+    .then(d => {
+      const parts = (d.display_name || '').split(',').slice(0, 3).join(', ');
+      _setAddress(role, parts || `${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+    })
+    .catch(() => _setAddress(role, `${lat.toFixed(4)}, ${lon.toFixed(4)}`));
+
+  // Load nearby facilities
+  _loadNearbyHospitals(role, lat, lon);
+
+  // If patient has a booked appointment → draw route
+  if (role === 'patient') {
+    const raw = localStorage.getItem('medBookedAppointment');
+    if (raw) {
+      try { showRouteToDoctor(role, lat, lon, JSON.parse(raw)); } catch(e) {}
+    }
+  }
+}
+
+function _onPositionUpdate(role, pos) {
+  const st  = gpsState[role];
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
+  const acc = Math.round(pos.coords.accuracy);
+  st.lastLat = lat; st.lastLon = lon;
+
+  if (st.userMarker) st.userMarker.setLatLng([lat, lon]);
+  if (st.accuracyCircle) { st.accuracyCircle.setLatLng([lat, lon]); st.accuracyCircle.setRadius(acc); }
+  _setCoordBar(role, lat, lon);
+
+  // Re-fetch route if destination active
+  if (role === 'patient' && st.destMarker) {
+    const dl = st.destMarker.getLatLng();
+    _fetchRoute(role, lat, lon, dl.lat, dl.lng, null);
+  }
+}
+
+function _onGPSError(role, err) {
+  const msgs = { 1:'Location access denied. Please enable location in your browser settings.', 2:'Unable to determine your location. Check device GPS.', 3:'Location request timed out — please try again.' };
+  _showGPSError(role, '⚠️ ' + (msgs[err.code] || 'GPS error occurred.'));
+}
+
+function _showGPSError(role, msg) {
+  const loadEl = document.getElementById(`${role}-gps-loading`);
+  const errEl  = document.getElementById(`${role}-gps-error`);
+  if (loadEl) loadEl.style.display = 'none';
+  if (errEl)  { errEl.textContent = msg; errEl.classList.add('visible'); }
+}
+
+function _setCoordBar(role, lat, lon) {
+  const latEl = document.getElementById(`${role}-lat`);
+  const lonEl = document.getElementById(`${role}-lon`);
+  if (latEl) latEl.textContent = lat.toFixed(5);
+  if (lonEl) lonEl.textContent = lon.toFixed(5);
+}
+
+function _setAddress(role, addr) {
+  const el = document.getElementById(`${role}-gps-address`);
+  if (el) el.textContent = addr;
+  if (role === 'doctor') {
+    const dl = document.getElementById('d-location-label');
+    if (dl) dl.textContent = addr;
+  }
+}
+
+/** Draw a route from user to doctor's hospital */
+function showRouteToDoctor(role, userLat, userLon, appt) {
+  // Try hardcoded coords first
+  let destCoords = null;
+  const hospName = (appt.hospital || '').toLowerCase();
+  for (const [key, val] of Object.entries(HOSPITAL_COORDS)) {
+    if (hospName.includes(key.toLowerCase()) || key.toLowerCase().includes(hospName)) {
+      destCoords = val; break;
+    }
+  }
+
+  if (destCoords) {
+    _bookedDestCoords = destCoords;
+    _drawRouteToCoords(role, userLat, userLon, destCoords.lat, destCoords.lon, appt);
+  } else {
+    // Nominatim geocode
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent((appt.hospital||'hospital')+' Kigali Rwanda')}&format=json&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const c = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          _bookedDestCoords = c;
+          _drawRouteToCoords(role, userLat, userLon, c.lat, c.lon, appt);
+        }
+      })
+      .catch(() => {});
+  }
+}
+
+function _drawRouteToCoords(role, uLat, uLon, dLat, dLon, appt) {
+  const st = gpsState[role];
+  if (!st.map) return;
+
+  // Hospital destination marker
+  const hospIcon = L.divIcon({
+    html: `<div style="text-align:center;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35))">
+             <div style="font-size:30px;">🏥</div>
+             <div style="background:#0a6e5e;color:#fff;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;white-space:nowrap;margin-top:1px;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${(appt.hospital||'Hospital').slice(0,18)}</div>
+           </div>`,
+    className: '',
+    iconSize: [120, 56],
+    iconAnchor: [60, 56]
+  });
+
+  if (st.destMarker) st.destMarker.remove();
+  st.destMarker = L.marker([dLat, dLon], { icon: hospIcon })
+    .addTo(st.map)
+    .bindPopup(`<b>🏥 ${appt.hospital || 'Hospital'}</b><br><b>${appt.doctorName || ''}</b><br>${appt.date || ''} ${appt.time ? 'at ' + appt.time : ''}`);
+
+  // Fit map to show both points
+  st.map.fitBounds(L.latLngBounds([[uLat, uLon],[dLat, dLon]]), { padding:[50,50] });
+
+  // Show route panel
+  const panel = document.getElementById('patient-route-panel');
+  if (panel) {
+    panel.classList.add('visible');
+    const rDoc  = panel.querySelector('.route-doctor');
+    const rHosp = panel.querySelector('.route-hospital');
+    const rAppt = panel.querySelector('.route-appt-val');
+    if (rDoc)  rDoc.textContent  = appt.doctorName || '';
+    if (rHosp) rHosp.textContent = appt.hospital   || '';
+    if (rAppt) rAppt.textContent = appt.date ? (appt.date + (appt.time ? ' at ' + appt.time : '')) : '–';
+  }
+
+  _fetchRoute(role, uLat, uLon, dLat, dLon, appt);
+}
+
+function _fetchRoute(role, fLat, fLon, tLat, tLon, appt) {
+  const st = gpsState[role];
+  fetch(`https://router.project-osrm.org/route/v1/driving/${fLon},${fLat};${tLon},${tLat}?overview=full&geometries=geojson`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.routes || !data.routes.length) return;
+      const route = data.routes[0];
+      const dist  = (route.distance / 1000).toFixed(1);
+      const mins  = Math.round(route.duration / 60);
+
+      // Remove old route layer
+      if (st.routeLayer) st.routeLayer.remove();
+
+      // Route shadow (thicker, lighter)
+      L.geoJSON(route.geometry, {
+        style: { color:'#fff', weight:9, opacity:0.5, lineJoin:'round', lineCap:'round' }
+      }).addTo(st.map);
+
+      // Main route line
+      st.routeLayer = L.geoJSON(route.geometry, {
+        style: { color:'#0a6e5e', weight:5, opacity:0.9, lineJoin:'round', lineCap:'round' }
+      }).addTo(st.map);
+
+      // Update stats
+      const pName = document.getElementById('p-nearest-name');
+      const pDist = document.getElementById('p-nearest-dist');
+      const pWalk = document.getElementById('p-nearest-walk');
+      if (pName) pName.textContent = appt ? (appt.hospital || 'Hospital') : 'Hospital';
+      if (pDist) pDist.textContent = dist + ' km';
+      if (pWalk) pWalk.textContent = mins + ' min';
+
+      // Route-panel stats
+      const panel = document.getElementById('patient-route-panel');
+      if (panel) {
+        const rv = panel.querySelector('.route-dist-val');
+        const rt = panel.querySelector('.route-time-val');
+        if (rv) rv.textContent = dist + ' km';
+        if (rt) rt.textContent = mins + ' min';
+      }
+    })
+    .catch(() => {
+      // Straight-line fallback
+      if (!st.routeLayer) {
+        const d = _haversine(fLat, fLon, tLat, tLon).toFixed(1);
+        const m = Math.round(d / 0.5);
+        st.routeLayer = L.polyline([[fLat,fLon],[tLat,tLon]],{ color:'#0a6e5e', weight:4, dashArray:'8 6', opacity:0.7 }).addTo(st.map);
+        const pDist = document.getElementById('p-nearest-dist');
+        const pWalk = document.getElementById('p-nearest-walk');
+        if (pDist) pDist.textContent = d + ' km (est.)';
+        if (pWalk) pWalk.textContent = m + ' min (est.)';
+      }
+    });
+}
+
+function _loadNearbyHospitals(role, lat, lon) {
+  const listEl = document.getElementById(`${role}-hospital-list`);
+  if (!listEl) return;
+  listEl.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:14px 18px">Searching nearby facilities…</p>';
+
+  const q = `[out:json][timeout:12];(node["amenity"~"hospital|clinic|doctors"](around:6000,${lat},${lon});way["amenity"~"hospital|clinic"](around:6000,${lat},${lon}););out center 12;`;
+  fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q })
+    .then(r => r.json())
+    .then(data => {
+      const els = (data.elements || []).map(el => {
+        const eLat = el.lat ?? el.center?.lat;
+        const eLon = el.lon ?? el.center?.lon;
+        return { ...el, eLat, eLon, dist: _haversine(lat, lon, eLat, eLon) };
+      }).filter(el => el.eLat && el.eLon).sort((a,b)=>a.dist-b.dist).slice(0,8);
+
+      if (!els.length) { _renderFallbackHospitals(role, lat, lon, listEl); return; }
+      _renderHospitalList(role, listEl, els, lat, lon, e => ({ name: e.tags?.name || 'Health Facility', type: e.tags?.amenity === 'hospital' ? 'Hospital' : 'Clinic/Doctors', lat: e.eLat, lon: e.eLon, dist: e.dist }));
+    })
+    .catch(() => _renderFallbackHospitals(role, lat, lon, listEl));
+}
+
+function _renderHospitalList(role, listEl, arr, userLat, userLon, mapper) {
+  const st = gpsState[role];
+  listEl.innerHTML = arr.map(item => {
+    const h = mapper(item);
+    const dStr = h.dist < 1 ? (h.dist*1000).toFixed(0)+'m' : h.dist.toFixed(1)+' km';
+    const mDrive = Math.round(h.dist/0.5);
+    const tStr = h.dist < 0.5 ? Math.round(h.dist*1000/80)+' min walk' : mDrive+' min drive';
+    const ico  = h.type === 'Hospital' ? '🏥' : '🏨';
+    return `<div class="hospital-list-item" onclick="_zoomTo('${role}',${h.lat},${h.lon},'${h.name.replace(/'/g,"&apos;")}')">
+      <div class="hospital-list-icon">${ico}</div>
+      <div class="hospital-list-info">
+        <div class="hospital-list-name">${h.name}</div>
+        <div class="hospital-list-meta">${h.type} &nbsp;·&nbsp; ${tStr}</div>
+      </div>
+      <div class="hospital-list-dist">${dStr}</div>
+    </div>`;
+  }).join('');
+
+  // Add small hospital icons on map
+  if (st.map) {
+    arr.slice(0,6).forEach(item => {
+      const h = mapper(item);
+      const si = L.divIcon({ html:'<div style="font-size:18px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">🏥</div>', className:'', iconSize:[22,22], iconAnchor:[11,11] });
+      L.marker([h.lat, h.lon], { icon: si }).addTo(st.map)
+        .bindPopup(`<b>${h.name}</b><br>${h.dist.toFixed(1)} km away`);
+    });
+  }
+
+  // Update nearest-stat if no booked appointment
+  if (role === 'patient' && arr.length && !localStorage.getItem('medBookedAppointment')) {
+    const h = mapper(arr[0]);
+    const pn = document.getElementById('p-nearest-name');
+    const pd = document.getElementById('p-nearest-dist');
+    const pw = document.getElementById('p-nearest-walk');
+    if (pn) pn.textContent = h.name;
+    if (pd) pd.textContent = h.dist.toFixed(1)+' km';
+    if (pw) pw.textContent = Math.round(h.dist/0.5)+' min';
+  }
+}
+
+function _renderFallbackHospitals(role, lat, lon, listEl) {
+  const fallback = Object.entries(HOSPITAL_COORDS).map(([name, c]) => ({
+    name, lat:c.lat, lon:c.lon, type:'Hospital', dist: _haversine(lat, lon, c.lat, c.lon)
+  })).sort((a,b)=>a.dist-b.dist);
+  _renderHospitalList(role, listEl, fallback, lat, lon, h => h);
+}
+
+function _zoomTo(role, lat, lon, name) {
+  const st = gpsState[role];
+  if (!st.map) return;
+  st.map.setView([lat, lon], 16);
+  const ic = L.divIcon({ html:'<div style="font-size:26px">🏥</div>', className:'', iconSize:[30,30], iconAnchor:[15,15] });
+  L.marker([lat, lon], { icon: ic }).addTo(st.map).bindPopup(`<b>${name}</b>`).openPopup();
+}
+
+function openInGoogleMaps() {
+  const s = gpsState.patient;
+  if (!s.lastLat || !_bookedDestCoords) return;
+  const url = `https://www.google.com/maps/dir/${s.lastLat},${s.lastLon}/${_bookedDestCoords.lat},${_bookedDestCoords.lon}`;
+  window.open(url, '_blank');
+}
+
+function _haversine(la1, lo1, la2, lo2) {
+  const R = 6371;
+  const dLa = (la2-la1)*Math.PI/180, dLo = (lo2-lo1)*Math.PI/180;
+  const a = Math.sin(dLa/2)*Math.sin(dLa/2) + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLo/2)*Math.sin(dLo/2);
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'en',
@@ -1927,6 +2755,7 @@ function googleTranslateElementInit() {
   }, 'google_translate_element');
 }
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
