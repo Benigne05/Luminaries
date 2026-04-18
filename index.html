@@ -1104,8 +1104,8 @@ SCREEN 3: PATIENT HOME
 </div>
 <div class="nav-item active" onclick="switchTab('patient','home',this); closeSidebar('patient')"><i class="fa fa-home"></i> <span data-i18n="nav_home">Home</span></div>
 <div class="nav-item" onclick="switchTab('patient','inbox',this); closeSidebar('patient')"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">3</span></div>
+<div class="nav-item" onclick="switchTab('patient','book',this); closeSidebar('patient')"><i class="fa fa-calendar-check"></i> <span data-i18n="nav_book">Book Doctor</span></div>
 <div class="nav-item" onclick="switchTab('patient','symptoms',this); closeSidebar('patient')"><i class="fa fa-stethoscope"></i> <span data-i18n="nav_symptoms">Symptom Checker</span></div>
-<div class="nav-item" onclick="switchTab('patient','book',this); closeSidebar('patient')"><i class="fa fa-calendar-plus"></i> <span data-i18n="nav_book">Book Doctor</span></div>
 <div class="nav-item" onclick="switchTab('patient','gps',this); closeSidebar('patient')" style="margin-top:auto"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS & Location</span></div>
 <div class="nav-item" onclick="logoutToLanding()" style="color:#e63946"><i class="fa fa-sign-out-alt"></i> <span data-i18n="nav_logout">Logout</span></div>
 </nav>
@@ -1117,9 +1117,7 @@ SCREEN 3: PATIENT HOME
 <h2 class="top-bar-title" id="p-page-title">Welcome back 👋</h2>
 </div>
 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-<div class="countdown-pill" id="countdown-pill">
-<i class="fa fa-clock"></i> Next appt: <strong id="countdown-text">2d 4h 30m</strong>
-</div>
+
 <div class="profile-pill" onclick="toggleProfileDd('patient')">
 <div class="profile-avatar" id="p-avatar-text">JC</div>
 <span class="profile-name" id="p-display-name">Jean Claude</span>
@@ -1276,77 +1274,26 @@ Detected: <span id="voice-symptom-text"></span>
 <p id="severity-desc"></p>
 <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
 <button class="btn-primary" style="padding:8px 18px; font-size:0.83rem" onclick="switchTab('patient','inbox',null)">💬 Chat with Doctor</button>
-<button class="btn-secondary" style="padding:8px 18px; font-size:0.83rem" onclick="switchTab('patient','book',null)">📅 Book Appointment</button>
+<button class="btn-secondary" style="padding:8px 18px; font-size:0.83rem; background: #fff;" onclick="switchTab('patient','book',null)">📅 Book Appointment</button>
 </div>
 </div>
 </div>
 </div>
  
+
 <!-- BOOK TAB -->
-<input type="text" id="patientName" placeholder="Name">
-<input type="datetime-local" id="appointmentTime">
-
-<select id="reason" onchange="toggleSymptomInput()">
-    <option value="General checkup">General checkup</option>
-    <option value="Flu symptoms">Flu symptoms</option>
-</select>
-
-<div id="symptomDetails" style="display: none; margin-top: 10px;">
-    <textarea id="customSymptoms" placeholder="Describe your symptoms..."></textarea>
-    <button type="button" onclick="startVoiceRecognition()">🎤 Speak Symptoms</button>
-    <p id="status" style="font-size: 0.8em; color: gray;"></p>
+<div class="tab-content" id="patient-tab-book">
+<p class="section-title">Book an Appointment 🏥</p>
+<div class="doctors-grid" id="doctors-grid"></div>
 </div>
+ 
 
-<button onclick="saveBooking()">Book Appointment</button>
-<script>
-function saveBooking() {
-    // 1. Get values from inputs
-    const newBooking = {
-        name: document.getElementById('patientName').value,
-        time: document.getElementById('appointmentTime').value,
-        reason: document.getElementById('reason').value,
-        severity: "Medium", // You can make this dynamic too
-        status: "Pending"
-    };
-
-    // 2. Get existing bookings or start a new list
-    let bookings = JSON.parse(localStorage.getItem('allBookings')) || [];
-    
-    // 3. Add the new one and save back to memory
-    bookings.push(newBooking);
-    localStorage.setItem('allBookings', JSON.stringify(bookings));
-
-    alert("Booking Saved! The doctor can now see it.");
-}
-</script>
  
 <!-- GPS TAB -->
 <div class="tab-content" id="patient-tab-gps">
 <p class="section-title">GPS & Navigation 🗺️</p>
 
-<!-- Booked Appointment Route Panel -->
-<div class="route-panel" id="patient-route-panel">
-  <h4>🧭 Route to Your Booked Doctor</h4>
-  <div style="font-size:0.88rem; opacity:0.9; margin-top:2px;">
-    Navigating to: <strong class="route-doctor"></strong>
-    &nbsp;·&nbsp; <span class="route-hospital" style="opacity:0.8"></span>
-  </div>
-  <div class="route-stats">
-    <div>
-      <div class="route-stat-label">Distance</div>
-      <div class="route-stat-value route-dist-val">–</div>
-    </div>
-    <div>
-      <div class="route-stat-label">Drive Time</div>
-      <div class="route-stat-value route-time-val">–</div>
-    </div>
-    <div>
-      <div class="route-stat-label">Appointment</div>
-      <div class="route-stat-value route-appt-val" style="font-size:0.88rem; line-height:1.4">–</div>
-    </div>
-  </div>
-  <button class="route-navigate-btn" onclick="openInGoogleMaps()">🗺️ Open in Google Maps</button>
-</div>
+
 
 <div class="map-container" id="patient-map-container">
   <!-- Loading state -->
@@ -1382,10 +1329,7 @@ function saveBooking() {
     <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Est. Drive Time</div>
     <div style="font-size:1.5rem; font-weight:700; color:var(--primary)" id="p-nearest-walk">–</div>
   </div>
-  <div style="background:var(--surface); border-radius:12px; border:1px solid var(--border); padding:18px">
-    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px">Next Appointment</div>
-    <div style="font-size:1.0rem; font-weight:700; color:var(--accent)" id="gps-countdown">–</div>
-  </div>
+
 </div>
 
 <!-- Nearby hospitals list -->
@@ -1428,7 +1372,6 @@ SCREEN 4: DOCTOR HOME
 </div>
 <div class="nav-item active" onclick="switchTab('doctor','inbox',this); closeSidebar('doctor')"><i class="fa fa-comments"></i> <span data-i18n="nav_inbox">Inbox</span> <span class="nav-badge">5</span></div>
 <div class="nav-item" onclick="switchTab('doctor','schedule',this); closeSidebar('doctor')"><i class="fa fa-calendar-alt"></i> <span data-i18n="nav_schedule">Schedule</span></div>
-<div class="nav-item" onclick="switchTab('doctor','appointments',this); closeSidebar('doctor')"><i class="fa fa-user-clock"></i> <span data-i18n="nav_appointments">Appointments</span></div>
 <div class="nav-item" onclick="switchTab('doctor','profile',this); closeSidebar('doctor')" style="margin-top:auto"><i class="fa fa-user-md"></i> <span data-i18n="nav_profile">My Profile</span></div>
 <div class="nav-item" onclick="switchTab('doctor','gps',this); closeSidebar('doctor')"><i class="fa fa-map-marker-alt"></i> <span data-i18n="nav_gps">GPS</span></div>
 <div class="nav-item" onclick="logoutToLanding()" style="color:#e63946"><i class="fa fa-sign-out-alt"></i> <span data-i18n="nav_logout">Logout</span></div>
@@ -1480,87 +1423,19 @@ SCREEN 4: DOCTOR HOME
 </div>
 </div>
  
-<!-- SCHEDULE -->
-<div class="schedule-section">
-    <h2>Current Schedule</h2>
-    <table class="schedule-table">
-        <thead>
-            <tr>
-                <th>Patient</th>
-                <th>Time</th>
-                <th>Reason</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody id="real-schedule-list"></tbody>
-    </table>
-    <div id="no-bookings-message" style="display:none; text-align:center; padding: 20px;">
-        <p>No current bookings. The schedule is clear.</p>
-    </div>
-</div>
-    </table>
-</div>
-<span class="schedule-status status-confirmed">Confirmed</span>
-</div>
+
+<!-- DOCTOR SCHEDULE -->
+<div class="tab-content" id="doctor-tab-schedule">
+<p class="section-title">My Schedule 📅</p>
+<div class="schedule-list" id="doctor-schedule-list">
+  <div style="padding:40px 20px; text-align:center; color:var(--text-muted)">
+    <i class="fa fa-calendar-alt" style="font-size:3rem; opacity:0.2; margin-bottom:16px; display:block"></i>
+    No appointments scheduled yet.
+  </div>
 </div>
 </div>
  
-<!-- APPOINTMENTS -->
-<table class="appointments-table">
-    <thead>
-        <tr>
-            <th>Patient Name</th>
-            <th>Date & Time</th>
-            <th>Reason</th>
-            <th>Severity</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody id="appointment-list">
-        </tbody>
-</table>
 
-<script>
-function loadAppointments() {
-    const tableBody = document.getElementById('appointment-list');
-    
-    // 1. Pull the real data from memory
-    const bookings = JSON.parse(localStorage.getItem('allBookings')) || [];
-
-    // 2. If no one has booked yet
-    if (bookings.length === 0) {
-        tableBody.innerHTML = "<tr><td colspan='5'>No appointments found.</td></tr>";
-        return;
-    }
-
-    // 3. Clear the table and build it from the data
-    tableBody.innerHTML = "";
-    bookings.forEach(patient => {
-        const row = `
-            <tr>
-                <td><strong>${patient.name}</strong></td>
-                <td>${patient.time}</td>
-                <td>${patient.reason}</td>
-                <td><span class="severity-badge badge-${patient.severity.toLowerCase()}">${patient.severity}</span></td>
-                <td><span class="schedule-status status-${patient.status.toLowerCase()}">${patient.status}</span></td>
-            </tr>
-        `;
-        tableBody.innerHTML += row;
-    });
-}
-
-// Load the list immediately when the page opens
-loadAppointments();
-
-// Optional: Refresh the list every 5 seconds to see new bookings
-setInterval(loadAppointments, 5000);
-</script>
-<td><span class="severity-badge badge-low" style="font-size:0.72rem">Low</span></td>
-<td><span class="schedule-status status-pending">Pending</span></td>
-</tr>
-</tbody>
-</table>
-</div>
  
 <!-- DOCTOR PROFILE -->
 <div class="tab-content" id="doctor-tab-profile">
@@ -1865,7 +1740,6 @@ function loginAs(user) {
     buildQuotes();
     buildDoctors();
     buildSymptomTags();
-    startCountdown();
     _seedWelcomeMessages(user);   // seed first-time welcome msgs from doctors
   } else {
     const firstName = (user.name || 'Doctor').replace('Dr.','').trim().split(' ')[0];
@@ -1892,10 +1766,11 @@ function switchTab(role, tab, clickedEl) {
   const tabEl = document.getElementById(`${prefix}-tab-${tab}`);
   if (tabEl) tabEl.classList.add('active');
   if (clickedEl) clickedEl.classList.add('active');
-  const titles = { home:'Welcome back 👋', inbox:'Inbox 💬', symptoms:'Symptom Checker', book:'Book a Doctor', gps:'GPS & Navigation', profile:'My Profile', schedule:'Schedule', appointments:'Appointments' };
+  const titles = { home:'Welcome back 👋', inbox:'Inbox 💬', symptoms:'Symptom Checker', book:'Book Appointment 🏥', schedule:'My Schedule 📅', gps:'GPS & Navigation', profile:'My Profile' };
   const titleEl = document.getElementById(role === 'patient' ? 'p-page-title' : 'd-page-title');
   if (titleEl) titleEl.textContent = titles[tab] || tab;
   if (tab === 'gps')    setTimeout(() => initGPS(role), 120);
+  if (tab === 'schedule' && role === 'doctor') setTimeout(renderDoctorSchedule, 60);
   if (tab === 'inbox' && role === 'doctor')  setTimeout(buildDoctorInbox, 60);
   if (tab === 'inbox' && role === 'patient') setTimeout(() => {
     if (!_curPatientDoctor) {
@@ -1968,44 +1843,91 @@ grid.innerHTML = DEMO_DOCTORS.map(d => `
 <div class="doctor-hospital">${d.hospital}</div>
 </div>
 </div>
-<span class="available-badge"><span class="available-dot"></span>${d.available ? 'Available' : 'Booked'}</span>
+<span class="available-badge"><span class="available-dot"></span>Available</span>
 <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px">📍 ${d.dist} District, Kigali</p>
-${d.available ? `<button class="btn-book" onclick="openBookModal('${d.name}')">Book Appointment</button>` : `<button class="btn-book" style="opacity:0.5; cursor:not-allowed">Not Available</button>`}
+<div style="display:flex; gap:8px;">
+<button class="btn-primary" style="flex:1; border-radius:8px; padding:9px; font-size:0.85rem" onclick="openBookingModal('${_ea(d.name)}')">Book Appointment</button>
+<button class="btn-secondary" style="border-radius:8px; padding:9px; font-size:0.85rem; background:#fff;" onclick="selectChat('${_ea(d.name)}','${_ea(d.name.split(' ').slice(-1)[0][0])}')"><i class="fa fa-comments"></i></button>
+</div>
 </div>
 `).join('');
 }
  
 // ═══════════════════════════════════
-// BOOKING MODAL
+// BOOKING LOGIC
 // ═══════════════════════════════════
-function openBookModal(doctorName) {
-document.getElementById('modal-doctor-name').textContent = doctorName;
-document.getElementById('book-modal').classList.add('open');
+function openBookingModal(docName) {
+  document.getElementById('modal-doctor-name').textContent = docName;
+  document.getElementById('book-modal').classList.add('open');
 }
-function closeModal() { document.getElementById('book-modal').classList.remove('open'); }
+function closeModal() {
+  document.getElementById('book-modal').classList.remove('open');
+}
 function confirmBooking() {
+  const docName = document.getElementById('modal-doctor-name').textContent;
   const date = document.getElementById('book-date').value;
   const time = document.getElementById('book-time').value;
   const reason = document.getElementById('book-reason').value;
-  const doctorName = document.getElementById('modal-doctor-name').textContent;
-  if (!date) { alert('Please select a date for your appointment.'); return; }
-
-  // Save booked appointment so GPS can route to the hospital
-  const doc = DEMO_DOCTORS.find(d => d.name === doctorName);
-  const appt = { doctorName, hospital: doc ? doc.hospital : '', date, time, reason, dist: doc ? doc.dist : null, lat: doc ? doc.lat : null, lon: doc ? doc.lon : null };
-  localStorage.setItem('medBookedAppointment', JSON.stringify(appt));
-
-  // Reset GPS so it re-draws route next time
-  if (gpsState.patient.initialized) {
-    const s = gpsState.patient;
-    if (s.userMarker) {
-      const ll = s.userMarker.getLatLng();
-      showRouteToDoctor('patient', ll.lat, ll.lng, appt);
-    }
+  
+  if (!date || !reason) {
+    alert('Please fill in all fields');
+    return;
   }
-
+  
+  const appt = {
+    id: Date.now(),
+    patientId: currentUser.email,
+    patientName: currentUser.name,
+    doctorName: docName,
+    date,
+    time,
+    reason,
+    status: 'pending'
+  };
+  
+  DB.appointments.push(appt);
+  saveDB();
+  
+  alert('Appointment booked successfully! You can track it in your inbox or schedule.');
   closeModal();
-  alert(`✅ Appointment booked!\n${doctorName}\n${date} at ${time}\nReason: ${reason || 'Not specified'}\n\n📍 Go to GPS & Navigation to see your route!`);
+  
+  // Update UI if on doctor schedule page
+  if (currentRole === 'doctor') renderDoctorSchedule();
+}
+
+function renderDoctorSchedule() {
+  const container = document.getElementById('doctor-schedule-list');
+  if (!container) return;
+  
+  const myAppts = DB.appointments.filter(a => a.doctorName.includes(currentUser.name.replace('Dr.','').trim()) || a.doctorName.includes(currentUser.name));
+  
+  if (!myAppts.length) {
+    container.innerHTML = `<div style="padding:40px 20px; text-align:center; color:var(--text-muted)">
+      <i class="fa fa-calendar-alt" style="font-size:3rem; opacity:0.2; margin-bottom:16px; display:block"></i>
+      No appointments scheduled yet.
+    </div>`;
+    return;
+  }
+  
+  container.innerHTML = myAppts.map(a => {
+    const d = new Date(a.date);
+    const day = d.getDate();
+    const month = d.toLocaleString('default', { month: 'short' }).toUpperCase();
+    return `
+    <div class="schedule-item">
+      <div class="schedule-date">
+        <div class="schedule-day">${day}</div>
+        <div class="schedule-month">${month}</div>
+      </div>
+      <div class="schedule-details">
+        <div class="schedule-patient">${a.patientName}</div>
+        <div class="schedule-time"><i class="fa fa-clock"></i> ${a.time}</div>
+        <div class="schedule-reason">${a.reason}</div>
+      </div>
+      <div class="schedule-status status-pending">Pending</div>
+    </div>
+    `;
+  }).join('');
 }
  
 // ═══════════════════════════════════
@@ -2135,7 +2057,7 @@ badge.className = 'severity-badge badge-' + level;
 const info = {
 low: { badge:'LOW RISK', title:'You seem to be doing well', desc:'Your symptoms suggest a mild condition. Rest, stay hydrated, and monitor your health. If symptoms persist beyond 3 days, consult your doctor via the Inbox.' },
 medium: { badge:'MEDIUM RISK', title:'Please consult your doctor', desc:'Your symptoms may require medical attention. We recommend chatting with your doctor in the Inbox to discuss next steps. Do not delay if symptoms worsen.' },
-high: { badge:'HIGH RISK — URGENT', title:'Book an appointment immediately', desc:'Your symptoms are serious and require urgent medical attention. Please book an appointment with a doctor right away or go to your nearest emergency room.' }
+high: { badge:'HIGH RISK — URGENT', title:'Consult a doctor immediately', desc:'Your symptoms are serious and require urgent medical attention. Please chat with a doctor right away or go to your nearest emergency room.' }
 };
 badge.textContent = info[level].badge;
 title.textContent = info[level].title;
@@ -2297,7 +2219,7 @@ function _seedWelcomeMessages(user) {
     { convId: user.email+'|||Dr. Alice Mukeshimana',  sender:'doctor', senderName:'Dr. Alice Mukeshimana',
       text: `Hello ${firstName}! Welcome to Med Resurgam. I’m Dr. Alice Mukeshimana, your General Practitioner. Feel free to message me anytime about your health concerns! 🩺`, timestamp: now - 10800000 },
     { convId: user.email+'|||Dr. Alice Mukeshimana',  sender:'doctor', senderName:'Dr. Alice Mukeshimana',
-      text: 'Remember to take your medication regularly and stay hydrated. See you at your next appointment! 💧', timestamp: now - 10000000 },
+      text: 'Remember to take your medication regularly and stay hydrated.', timestamp: now - 10000000 },
     { convId: user.email+'|||Dr. Patrick Nzeyimana', sender:'doctor', senderName:'Dr. Patrick Nzeyimana',
       text: `Good day ${firstName}! I’m Dr. Patrick Nzeyimana, Cardiologist at CHUK. Reach out any time for cardiovascular advice. 💙`, timestamp: now - 7200000 },
     { convId: user.email+'|||Dr. Grace Uwimana',     sender:'doctor', senderName:'Dr. Grace Uwimana',
@@ -2312,24 +2234,7 @@ function _seedWelcomeMessages(user) {
 // ═══════════════════════════════════
 // COUNTDOWN
 // ═══════════════════════════════════
-function startCountdown() {
-const apptDate = new Date();
-apptDate.setDate(apptDate.getDate() + 3);
-apptDate.setHours(10, 30, 0, 0);
- 
-function update() {
-const diff = apptDate - new Date();
-if (diff <= 0) { document.getElementById('countdown-text').textContent = 'NOW!'; return; }
-const d = Math.floor(diff / 86400000);
-const h = Math.floor((diff % 86400000) / 3600000);
-const m = Math.floor((diff % 3600000) / 60000);
-const str = `${d}d ${h}h ${m}m`;
-document.getElementById('countdown-text').textContent = str;
-document.getElementById('gps-countdown').textContent = str;
-}
-update();
-setInterval(update, 60000);
-}
+
  
 // ═══════════════════════════════════
 // DOCTOR PROFILE SAVE
@@ -2481,13 +2386,7 @@ function _onGotPosition(role, pos) {
   // Load nearby facilities
   _loadNearbyHospitals(role, lat, lon);
 
-  // If patient has a booked appointment → draw route
-  if (role === 'patient') {
-    const raw = localStorage.getItem('medBookedAppointment');
-    if (raw) {
-      try { showRouteToDoctor(role, lat, lon, JSON.parse(raw)); } catch(e) {}
-    }
-  }
+  // Facilities already loaded above. Route removed.
 }
 
 function _onPositionUpdate(role, pos) {
